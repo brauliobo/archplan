@@ -194,3 +194,12 @@ levels:
       - { id: f-bed2-dresser,   kind: dresser,              pos: [4.5, 11.7],  rot: 3.1416 }
       - { id: f-bed2-rug,       kind: rug,                  pos: [5.5, 10.9],  rot: 0 }
       - { id: f-bed2-ceiling,   kind: ceiling_lamp,         pos: [5.8, 11.0],  rot: 0 }
+
+tour:
+  entry: { doorId: d-front }
+  speed: 1.2
+  waypoints:
+    - { roomId: r-living,  dwell: 4, narration: "Open living and dining area" }
+    - { roomId: r-kitchen, dwell: 3, narration: "Kitchen" }
+    - { roomId: r-bed3,    dwell: 3, narration: "Bedroom 3" }
+    - { roomId: r-suite,   dwell: 4, narration: "Master suite" }

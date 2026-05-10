@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { FIXTURES } from './catalog/fixtures.js'
+import { Tour } from './tour/schema.js'
 
 export const Vec2 = z.tuple([z.number(), z.number()])
 
@@ -59,4 +60,5 @@ export const House = z.object({
     locale: z.string().default('en-US'),
   }),
   levels: z.array(Level).min(1),
+  tour: Tour.optional(),
 })

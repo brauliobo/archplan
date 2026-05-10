@@ -25,6 +25,17 @@ view3d:
   orbit: Órbita
   walk: Caminhar
 
+tour:
+  start: Iniciar tour
+  stop: Parar tour
+  record: Gravar
+  stop_record: Parar gravação
+  mode_third: Terceira pessoa
+  mode_first: Primeira pessoa
+  mode_cinematic: Cinematográfico
+  no_tour: Nenhum tour definido nesta planta
+  recording_unsupported: Gravação não suportada neste navegador
+
 issues:
   title: Conformidade com normas
   none: Todas as verificações passaram.

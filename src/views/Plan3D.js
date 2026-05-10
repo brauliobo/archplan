@@ -1,5 +1,5 @@
-import { createElement, Suspense, useMemo, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { createElement, Fragment, Suspense, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Grid, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { useHouse } from '../HouseContext.js'
@@ -8,6 +8,10 @@ import { wallLength, wallAngle, lerp } from '../util/geom.js'
 import { FIXTURES } from '../catalog/fixtures.js'
 import { floorFor, MATERIALS } from '../catalog/rooms.js'
 import FurnitureModel from './FurnitureModel.js'
+import { TourProvider, useTour } from '../tour/TourContext.js'
+import GuideCharacter from '../tour/GuideCharacter.js'
+import TourController from '../tour/TourController.js'
+import TourUI from '../tour/TourUI.js'
 
 const MODEL_BASE = '/models/furniture/'
 Object.values(FIXTURES).forEach((f) => { if (f.model) useGLTF.preload(MODEL_BASE + f.model) })
@@ -188,6 +192,8 @@ function SlidingDoorMesh({ wall, opening }) {
   `
 }
 
+const DOOR_MAX_ANGLE = -Math.PI * 0.55
+
 function DoorMesh({ wall, opening }) {
   const ang = wallAngle(wall)
   const c2 = lerp(wall.a, wall.b, opening.t)
@@ -197,10 +203,18 @@ function DoorMesh({ wall, opening }) {
   const fr = 0.06
   const leafW = w - 2 * fr
   const leafT = 0.045
-  const swing = -Math.PI / 6
   const exterior = isExternal(wall)
   const isPivot = w >= 0.95 && exterior
   const leafKind = exterior ? 'doorLeafExt' : 'doorLeafInt'
+  const { doorStateRef } = useTour()
+  const leafRef = useRef(null)
+  useFrame(() => {
+    const node = leafRef.current
+    if (!node) return
+    const open = doorStateRef.current.get(opening.id) ?? 0
+    const target = DOOR_MAX_ANGLE * (isPivot ? open / 2 : open)
+    node.rotation.y = target
+  })
   return pug`
     group(position=[c2[0], yMid, -c2[1]] rotation=[0, -ang, 0])
       mesh(position=[0, h / 2 - fr / 2, 0])
@@ -212,7 +226,7 @@ function DoorMesh({ wall, opening }) {
       mesh(position=[w / 2 - fr / 2, -fr / 2, 0])
         boxGeometry(args=[fr, h - fr, t * 0.95])
         Mat(kind="doorFrame")
-      group(position=[isPivot ? 0 : -(w / 2 - fr), 0, 0] rotation=[0, isPivot ? swing / 2 : swing, 0])
+      group(ref=leafRef position=[isPivot ? 0 : -(w / 2 - fr), 0, 0])
         mesh(position=[isPivot ? 0 : leafW / 2, -fr / 2, leafT / 2])
           boxGeometry(args=[leafW, h - fr, leafT])
           Mat(kind=leafKind)
@@ -284,6 +298,18 @@ function LevelGroup({ level, showRoof }) {
   `
 }
 
+function SceneInner({ level, target }) {
+  const { running, cameraMode } = useTour()
+  const orbitEnabled = !running || cameraMode === 'orbit'
+  return pug`
+    Fragment
+      Suspense(fallback=null)
+        GuideCharacter
+      TourController(level=level)
+      OrbitControls(makeDefault enabled=orbitEnabled target=target maxPolarAngle=Math.PI/2 - 0.05)
+  `
+}
+
 export default function Plan3D() {
   const { house } = useHouse()
   const { t } = useT()
@@ -300,19 +326,21 @@ export default function Plan3D() {
   const lightPos = [cx + 8, 18, -cy + 10]
 
   return pug`
-    .plan3d__wrap
-      label.plan3d__roof
-        input(type="checkbox" checked=showRoof onChange=(e) => setShowRoof(e.target.checked))
-        |  ${t('panes.show_roof')}
-      Canvas.plan3d(camera=camera shadows)
-        color(attach="background" args=[MATERIALS.sky])
-        fog(attach="fog" args=[MATERIALS.sky, 30, 90])
-        ambientLight(intensity=0.4)
-        directionalLight(position=lightPos intensity=1.1 castShadow shadow-mapSize=[2048, 2048] shadow-camera-left=-20 shadow-camera-right=20 shadow-camera-top=20 shadow-camera-bottom=-20 shadow-camera-near=0.5 shadow-camera-far=80)
-        Grid(args=[80, 80] cellColor="#aab" sectionColor="#778" infiniteGrid fadeDistance=60 cellSize=1 sectionSize=5)
-        Suspense(fallback=null)
-          each lvl in house.levels
-            LevelGroup(key=lvl.id level=lvl showRoof=showRoof)
-        OrbitControls(makeDefault target=target maxPolarAngle=Math.PI/2 - 0.05)
+    TourProvider
+      .plan3d__wrap
+        label.plan3d__roof
+          input(type="checkbox" checked=showRoof onChange=(e) => setShowRoof(e.target.checked))
+          |  ${t('panes.show_roof')}
+        TourUI(house=house)
+        Canvas.plan3d(camera=camera shadows)
+          color(attach="background" args=[MATERIALS.sky])
+          fog(attach="fog" args=[MATERIALS.sky, 30, 90])
+          ambientLight(intensity=0.4)
+          directionalLight(position=lightPos intensity=1.1 castShadow shadow-mapSize=[2048, 2048] shadow-camera-left=-20 shadow-camera-right=20 shadow-camera-top=20 shadow-camera-bottom=-20 shadow-camera-near=0.5 shadow-camera-far=80)
+          Grid(args=[80, 80] cellColor="#aab" sectionColor="#778" infiniteGrid fadeDistance=60 cellSize=1 sectionSize=5)
+          Suspense(fallback=null)
+            each lvl in house.levels
+              LevelGroup(key=lvl.id level=lvl showRoof=showRoof)
+          SceneInner(level=level target=target)
   `
 }

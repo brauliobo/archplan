@@ -25,6 +25,17 @@ view3d:
   orbit: Orbit
   walk: Walk
 
+tour:
+  start: Start tour
+  stop: Stop tour
+  record: Record
+  stop_record: Stop recording
+  mode_third: Third-person
+  mode_first: First-person
+  mode_cinematic: Cinematic
+  no_tour: No tour defined in this plan
+  recording_unsupported: Recording unsupported in this browser
+
 issues:
   title: Standards check
   none: All checks pass.
