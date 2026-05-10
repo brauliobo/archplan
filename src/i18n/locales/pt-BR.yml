@@ -59,3 +59,41 @@ room_types:
   closet: Closet
   garage: Garagem
   office: Escritório
+
+fixtures:
+  toilet: Vaso sanitário
+  sink: Pia
+  bath_sink: Lavatório
+  shower: Box
+  bathtub: Banheira
+  vanity: Bancada com cuba
+  mirror: Espelho
+  bed: Cama de casal
+  bed_single: Cama de solteiro
+  nightstand: Criado-mudo
+  wardrobe: Guarda-roupa
+  dresser: Cômoda
+  stove: Fogão
+  fridge: Geladeira
+  dishwasher: Lava-louças
+  microwave: Micro-ondas
+  range_hood: Coifa
+  kitchen_cabinet_low: Armário inferior
+  kitchen_cabinet_high: Armário aéreo
+  kitchen_island: Ilha de cozinha
+  sofa: Sofá
+  armchair: Poltrona
+  coffee_table: Mesa de centro
+  table: Mesa de jantar
+  chair: Cadeira
+  bookshelf: Estante
+  tv: TV
+  tv_large: TV grande
+  tv_stand: Rack
+  rug: Tapete
+  plant: Planta
+  floor_lamp: Luminária de chão
+  table_lamp: Abajur
+  ceiling_lamp: Plafon
+  washer: Máquina de lavar
+  dryer: Secadora

@@ -175,16 +175,22 @@ const checkDoorFixtureCollision = (level) => {
     const L = wallLength(wall)
     const ux = (wall.b[0] - wall.a[0]) / L
     const uy = (wall.b[1] - wall.a[1]) / L
+    const nx = -uy, ny = ux // CCW normal = "left" of a→b
     const halfW = op.width / 2
     const hingeA = [c[0] - ux * halfW, c[1] - uy * halfW]
     const hingeB = [c[0] + ux * halfW, c[1] + uy * halfW]
+    const swingSign = op.swing === 'left' ? 1 : op.swing === 'right' ? -1 : 0
     for (const f of level.fixtures || []) {
       const size = FIXTURE_SIZE[f.kind]
-      if (!size) continue
+      if (!size || size[2] < 0.1) continue // flat fixtures (rugs) don't block doors
+      if (swingSign !== 0) {
+        const fSide = (f.pos[0] - c[0]) * nx + (f.pos[1] - c[1]) * ny
+        if (Math.sign(fSide) !== swingSign) continue
+      }
       const halfMax = Math.max(size[0], size[1]) / 2
       const dA = Math.hypot(f.pos[0] - hingeA[0], f.pos[1] - hingeA[1])
       const dB = Math.hypot(f.pos[0] - hingeB[0], f.pos[1] - hingeB[1])
-      if (Math.min(dA, dB) < op.width + halfMax * 0.7) {
+      if (Math.min(dA, dB) < op.width + halfMax * 0.5) {
         const key = op.id + ':' + f.id
         if (seen.has(key)) continue
         seen.add(key)

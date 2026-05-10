@@ -26,7 +26,7 @@ export const MATERIALS = {
   doorLeafExt:     { color: '#3d2b1f', roughness: 0.55, metalness: 0.05 },
   doorLeafInt:     { color: '#8d6e4a', roughness: 0.55, metalness: 0.05 },
   doorHandle:      { color: '#bfa46f', metalness: 0.7, roughness: 0.3 },
-  counterTop:      { color: '#3a322a', roughness: 0.3, metalness: 0.2 },
+  counterTop:      { color: '#2a2826', roughness: 0.2, metalness: 0.35 },
   groundLot:       { color: '#c9c4a4', roughness: 0.95 },
   groundOutside:   { color: '#aab98a', roughness: 1 },
   sky:             '#cfe6f4',

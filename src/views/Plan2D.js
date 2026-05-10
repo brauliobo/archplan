@@ -98,6 +98,21 @@ function OpeningMark({ opening, walls }) {
         path(d=leafPath fill="#1a1a1a" stroke="#1a1a1a" strokeWidth=0.01 strokeLinejoin="miter")
     `
   }
+  if (opening.kind === 'sliding') {
+    const sideSign = opening.swing === 'right' ? 1 : -1
+    const lx1 = c[0] + ux * (sideSign * 0) - ux * (opening.width / 2)
+    const ly1 = c[1] + uy * (sideSign * 0) - uy * (opening.width / 2)
+    const lx2 = c[0] + ux * (sideSign * 0) + ux * (opening.width / 2)
+    const ly2 = c[1] + uy * (sideSign * 0) + uy * (opening.width / 2)
+    const nx = -uy, ny = ux
+    const off = wall.thickness / 2 + 0.025
+    return pug`
+      g
+        line(x1=x1 y1=y1 x2=x2 y2=y2 stroke="#fff" strokeWidth=wall.thickness + 0.04)
+        line(x1=lx1 + nx * off y1=ly1 + ny * off x2=lx2 + nx * off y2=ly2 + ny * off stroke="#1a1a1a" strokeWidth=0.04)
+        line(x1=lx1 - nx * off y1=ly1 - ny * off x2=lx2 - nx * off y2=ly2 - ny * off stroke="#1a1a1a" strokeWidth=0.04)
+    `
+  }
   if (opening.kind === 'counter') {
     const nx = -uy, ny = ux
     const tk = wall.thickness * 0.6

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { FIXTURES } from './catalog/fixtures.js'
 
 export const Vec2 = z.tuple([z.number(), z.number()])
 
@@ -12,11 +13,12 @@ export const Wall = z.object({
 export const Opening = z.object({
   id: z.string(),
   wallId: z.string(),
-  kind: z.enum(['door', 'window', 'counter']),
+  kind: z.enum(['door', 'window', 'counter', 'sliding']),
   t: z.number().min(0).max(1),
   width: z.number().positive(),
   height: z.number().positive(),
   sillHeight: z.number().min(0).default(0),
+  swing: z.enum(['left', 'right']).optional(),
 })
 
 export const ROOM_TYPES = [
@@ -31,9 +33,7 @@ export const Room = z.object({
   polygon: z.array(Vec2).min(3),
 })
 
-export const FIXTURE_KINDS = [
-  'toilet','sink','shower','stove','fridge','bed','table','sofa',
-]
+export const FIXTURE_KINDS = Object.keys(FIXTURES)
 
 export const Fixture = z.object({
   id: z.string(),

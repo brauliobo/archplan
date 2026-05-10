@@ -59,3 +59,41 @@ room_types:
   closet: Closet
   garage: Garage
   office: Office
+
+fixtures:
+  toilet: Toilet
+  sink: Sink
+  bath_sink: Bathroom sink
+  shower: Shower
+  bathtub: Bathtub
+  vanity: Vanity
+  mirror: Mirror
+  bed: Double bed
+  bed_single: Single bed
+  nightstand: Nightstand
+  wardrobe: Wardrobe
+  dresser: Dresser
+  stove: Stove
+  fridge: Fridge
+  dishwasher: Dishwasher
+  microwave: Microwave
+  range_hood: Range hood
+  kitchen_cabinet_low: Base cabinet
+  kitchen_cabinet_high: Wall cabinet
+  kitchen_island: Kitchen island
+  sofa: Sofa
+  armchair: Armchair
+  coffee_table: Coffee table
+  table: Dining table
+  chair: Chair
+  bookshelf: Bookshelf
+  tv: TV
+  tv_large: Large TV
+  tv_stand: TV stand
+  rug: Rug
+  plant: Plant
+  floor_lamp: Floor lamp
+  table_lamp: Table lamp
+  ceiling_lamp: Ceiling lamp
+  washer: Washer
+  dryer: Dryer

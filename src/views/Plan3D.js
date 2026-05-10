@@ -1,12 +1,16 @@
-import { createElement, useMemo, useState } from 'react'
+import { createElement, Suspense, useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Grid } from '@react-three/drei'
+import { OrbitControls, Grid, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { useHouse } from '../HouseContext.js'
 import { useT } from '../i18n/index.js'
 import { wallLength, wallAngle, lerp } from '../util/geom.js'
-import { FIXTURE_SIZE, FIXTURE_COLOR } from '../catalog/fixtures.js'
+import { FIXTURES } from '../catalog/fixtures.js'
 import { floorFor, MATERIALS } from '../catalog/rooms.js'
+import FurnitureModel from './FurnitureModel.js'
+
+const MODEL_BASE = '/models/furniture/'
+Object.values(FIXTURES).forEach((f) => { if (f.model) useGLTF.preload(MODEL_BASE + f.model) })
 
 const Mat = ({ kind, physical }) =>
   createElement(physical ? 'meshPhysicalMaterial' : 'meshStandardMaterial', { ...MATERIALS[kind], transparent: MATERIALS[kind].opacity != null && MATERIALS[kind].opacity < 1 })
@@ -158,6 +162,32 @@ function WindowMesh({ wall, opening }) {
   `
 }
 
+function SlidingDoorMesh({ wall, opening }) {
+  const ang = wallAngle(wall)
+  const c2 = lerp(wall.a, wall.b, opening.t)
+  const yMid = opening.height / 2
+  const w = opening.width, h = opening.height
+  const t = wall.thickness
+  const fr = 0.05
+  const leafT = 0.04
+  const sideSign = opening.swing === 'right' ? 1 : -1
+  return pug`
+    group(position=[c2[0], yMid, -c2[1]] rotation=[0, -ang, 0])
+      mesh(position=[0, h / 2 - fr / 2, 0])
+        boxGeometry(args=[w + fr * 2, fr, t * 1.05])
+        Mat(kind="doorFrame")
+      mesh(position=[sideSign * (w / 2 - w / 4), -fr / 2, t / 2 + leafT / 2 + 0.005])
+        boxGeometry(args=[w / 2, h - fr, leafT])
+        Mat(kind="doorLeafInt")
+      mesh(position=[sideSign * (w / 2 - w / 4), -fr / 2, -(t / 2 + leafT / 2 + 0.005)])
+        boxGeometry(args=[w / 2, h - fr, leafT])
+        Mat(kind="doorLeafInt")
+      mesh(position=[sideSign * (w / 2 - 0.15), -fr / 2 - 0.1, t / 2 + leafT + 0.02])
+        sphereGeometry(args=[0.035, 12, 12])
+        Mat(kind="doorHandle")
+  `
+}
+
 function DoorMesh({ wall, opening }) {
   const ang = wallAngle(wall)
   const c2 = lerp(wall.a, wall.b, opening.t)
@@ -192,30 +222,22 @@ function DoorMesh({ wall, opening }) {
   `
 }
 
-function FixtureMesh({ fixture }) {
-  const size = FIXTURE_SIZE[fixture.kind] || [0.5, 0.5, 0.5]
-  const color = FIXTURE_COLOR[fixture.kind] || '#888'
-  const w = size[0], d = size[1], h = size[2]
-  const position = [fixture.pos[0], h / 2, -fixture.pos[1]]
+function FixtureMesh({ fixture, ceilingY }) {
+  const def = FIXTURES[fixture.kind]
+  if (!def) return null
+  const [w, d, h] = def.size
+  const baseY = fixture.kind === 'ceiling_lamp' ? ceilingY - h : 0
+  const position = [fixture.pos[0], baseY, -fixture.pos[1]]
   const rotation = [0, -fixture.rot, 0]
-  if (fixture.kind === 'bed') {
+  if (def.model) {
     return pug`
-      group(position=position rotation=rotation)
-        mesh(position=[0, -h / 2 + 0.1, 0] castShadow)
-          boxGeometry(args=[w, 0.2, d])
-          meshStandardMaterial(color="#5d4a3a" roughness=0.7)
-        mesh(position=[0, 0, 0] castShadow)
-          boxGeometry(args=[w * 0.95, h * 0.5, d * 0.95])
-          meshStandardMaterial(color="#e8d8c4" roughness=0.85)
-        mesh(position=[0, h * 0.45, -d / 2 + 0.05] castShadow)
-          boxGeometry(args=[w, h * 0.9, 0.08])
-          meshStandardMaterial(color="#4a3828" roughness=0.6)
+      FurnitureModel(url=MODEL_BASE + def.model size=def.size position=position rotation=rotation)
     `
   }
   return pug`
-    mesh(position=position rotation=rotation castShadow)
+    mesh(position=[position[0], baseY + h / 2, position[2]] rotation=rotation castShadow)
       boxGeometry(args=[w, h, d])
-      meshStandardMaterial(color=color roughness=0.6)
+      meshStandardMaterial(color=def.color roughness=0.6)
   `
 }
 
@@ -253,10 +275,12 @@ function LevelGroup({ level, showRoof }) {
           WindowMesh(key=o.id wall=wall opening=o)
         if wall && o.kind === 'door'
           DoorMesh(key=o.id wall=wall opening=o)
+        if wall && o.kind === 'sliding'
+          SlidingDoorMesh(key=o.id wall=wall opening=o)
         if wall && o.kind === 'counter'
           CounterTop(key=o.id wall=wall opening=o)
       each f in level.fixtures
-        FixtureMesh(key=f.id fixture=f)
+        FixtureMesh(key=f.id fixture=f ceilingY=level.height)
   `
 }
 
@@ -286,8 +310,9 @@ export default function Plan3D() {
         ambientLight(intensity=0.4)
         directionalLight(position=lightPos intensity=1.1 castShadow shadow-mapSize=[2048, 2048] shadow-camera-left=-20 shadow-camera-right=20 shadow-camera-top=20 shadow-camera-bottom=-20 shadow-camera-near=0.5 shadow-camera-far=80)
         Grid(args=[80, 80] cellColor="#aab" sectionColor="#778" infiniteGrid fadeDistance=60 cellSize=1 sectionSize=5)
-        each lvl in house.levels
-          LevelGroup(key=lvl.id level=lvl showRoof=showRoof)
+        Suspense(fallback=null)
+          each lvl in house.levels
+            LevelGroup(key=lvl.id level=lvl showRoof=showRoof)
         OrbitControls(makeDefault target=target maxPolarAngle=Math.PI/2 - 0.05)
   `
 }
