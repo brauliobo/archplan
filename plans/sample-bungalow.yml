@@ -1,0 +1,46 @@
+meta:
+  name: Sample bungalow
+  locale: en-US
+
+levels:
+  - id: l0
+    name: Ground
+    elevation: 0
+    height: 2.7
+
+    walls:
+      - { id: w-s,   a: [0, 0],   b: [12, 0], thickness: 0.15 }
+      - { id: w-e,   a: [12, 0],  b: [12, 9], thickness: 0.15 }
+      - { id: w-n,   a: [12, 9],  b: [0, 9],  thickness: 0.15 }
+      - { id: w-w,   a: [0, 9],   b: [0, 0],  thickness: 0.15 }
+      - { id: w-h1,  a: [4, 0],   b: [4, 5],  thickness: 0.1 }
+      - { id: w-h2,  a: [4, 5],   b: [12, 5], thickness: 0.1 }
+      - { id: w-h3,  a: [8, 5],   b: [8, 9],  thickness: 0.1 }
+
+    rooms:
+      - { id: r-living,  type: living,   label: Living,    polygon: [[0, 0], [4, 0], [4, 5], [0, 5]] }
+      - { id: r-kitchen, type: kitchen,  label: Kitchen,   polygon: [[0, 5], [4, 5], [4, 9], [0, 9]] }
+      - { id: r-bath,    type: bathroom, label: Bath,      polygon: [[4, 0], [8, 0], [8, 2.5], [4, 2.5]] }
+      - { id: r-bed1,    type: bedroom,  label: Bedroom 1, polygon: [[4, 2.5], [8, 2.5], [8, 5], [4, 5]] }
+      - { id: r-suite,   type: suite,    label: Suite,     polygon: [[8, 0], [12, 0], [12, 5], [8, 5]] }
+      - { id: r-bed2,    type: bedroom,  label: Bedroom 2, polygon: [[4, 5], [8, 5], [8, 9], [4, 9]] }
+      - { id: r-office,  type: office,   label: Office,    polygon: [[8, 5], [12, 5], [12, 9], [8, 9]] }
+
+    openings:
+      - { id: d-front,   wallId: w-s, kind: door,   t: 0.16, width: 0.9, height: 2.1, sillHeight: 0 }
+      - { id: w-living,  wallId: w-w, kind: window, t: 0.3,  width: 1.5, height: 1.2, sillHeight: 1.0 }
+      - { id: w-kitchen, wallId: w-n, kind: window, t: 0.16, width: 1.2, height: 1.0, sillHeight: 1.0 }
+      - { id: w-bed1,    wallId: w-s, kind: window, t: 0.5,  width: 1.2, height: 1.2, sillHeight: 1.0 }
+      - { id: w-suite,   wallId: w-e, kind: window, t: 0.25, width: 1.5, height: 1.2, sillHeight: 1.0 }
+      - { id: w-bed2,    wallId: w-n, kind: window, t: 0.55, width: 1.2, height: 1.2, sillHeight: 1.0 }
+
+    fixtures:
+      - { id: f-toilet,    kind: toilet, pos: [4.5, 0.5], rot: 0 }
+      - { id: f-sink,      kind: sink,   pos: [7.5, 0.5], rot: 0 }
+      - { id: f-stove,     kind: stove,  pos: [0.5, 8.5], rot: 0 }
+      - { id: f-fridge,    kind: fridge, pos: [0.5, 7.5], rot: 0 }
+      - { id: f-bed1,      kind: bed,    pos: [6, 4],     rot: 0 }
+      - { id: f-bed2,      kind: bed,    pos: [6, 8],     rot: 0 }
+      - { id: f-suite-bed, kind: bed,    pos: [10, 3.5],  rot: 0 }
+      - { id: f-sofa,      kind: sofa,   pos: [2, 1.5],   rot: 0 }
+      - { id: f-table,     kind: table,  pos: [2, 3],     rot: 0 }

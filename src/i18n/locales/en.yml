@@ -1,0 +1,60 @@
+app:
+  title: archplan
+  subtitle: AI-driven 2D/3D house planner
+
+prompt:
+  placeholder: Describe the house you want to build...
+  submit: Generate plan
+  edit: Edit plan
+  generating: Generating...
+  example: "Single-storey home, ~110 m², 3 bedrooms (1 suite), open kitchen, separate laundry, 2 bathrooms."
+  load_sample: Load sample
+  api_key_label: Anthropic API key
+  api_key_placeholder: sk-ant-...
+  api_key_save: Save key
+  api_key_saved: "Key saved (in your browser)"
+  api_key_warning: "The key is sent directly from your browser to Anthropic. Use only your own key."
+
+panes:
+  plan2d: 2D Floorplan
+  plan3d: 3D View
+  empty: No plan yet. Describe a house to start.
+  show_roof: Show slab
+
+view3d:
+  orbit: Orbit
+  walk: Walk
+
+issues:
+  title: Standards check
+  none: All checks pass.
+  count: "{count} issue(s)"
+  ceiling: "Ceiling height {value} m below minimum {min} m"
+  area: "{label} ({type}) is {value} m², minimum {min} m²"
+  door: "Door {id}: {value} m below minimum {min} m"
+  hall: "Hallway {label} width {value} m below minimum {min} m"
+  opening_orphan: "Opening {id} references missing wall {wallId}"
+  opening_overflow: "Opening {id} extends beyond wall length"
+  opening_overlap: "Openings {a} and {b} overlap on the same wall"
+  wall_pierces_opening: "Wall {wall} ends inside opening {opening} (host wall {host})"
+  polygon_self_intersect: "Room {label} polygon self-intersects"
+  rooms_overlap: "Rooms {a} and {b} overlap"
+  no_window: "Bedroom {label} has no exterior window"
+
+errors:
+  no_api_key: "Set VITE_ANTHROPIC_API_KEY in .env.local"
+  ai_failed: "AI request failed: {message}"
+  validation: "Plan validation failed"
+
+room_types:
+  bedroom: Bedroom
+  suite: Suite
+  kitchen: Kitchen
+  living: Living
+  dining: Dining
+  bathroom: Bathroom
+  laundry: Laundry
+  hall: Hallway
+  closet: Closet
+  garage: Garage
+  office: Office

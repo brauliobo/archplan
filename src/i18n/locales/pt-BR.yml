@@ -1,0 +1,60 @@
+app:
+  title: archplan
+  subtitle: Planejador de casa 2D/3D guiado por IA
+
+prompt:
+  placeholder: Descreva a casa que você quer construir...
+  submit: Gerar planta
+  edit: Editar planta
+  generating: Gerando...
+  example: "Casa térrea, ~110 m², 3 dormitórios (1 suíte), cozinha americana, lavanderia separada, 2 banheiros."
+  load_sample: Carregar exemplo
+  api_key_label: Chave da API Anthropic
+  api_key_placeholder: sk-ant-...
+  api_key_save: Salvar chave
+  api_key_saved: "Chave salva (no seu navegador)"
+  api_key_warning: "A chave é enviada direto do seu navegador para a Anthropic. Use apenas sua própria chave."
+
+panes:
+  plan2d: Planta 2D
+  plan3d: Vista 3D
+  empty: Nenhuma planta ainda. Descreva uma casa para começar.
+  show_roof: Mostrar laje
+
+view3d:
+  orbit: Órbita
+  walk: Caminhar
+
+issues:
+  title: Conformidade com normas
+  none: Todas as verificações passaram.
+  count: "{count} problema(s)"
+  ceiling: "Pé-direito {value} m abaixo do mínimo {min} m"
+  area: "{label} ({type}) tem {value} m², mínimo {min} m²"
+  door: "Porta {id}: {value} m abaixo do mínimo {min} m"
+  hall: "Corredor {label} com largura {value} m abaixo do mínimo {min} m"
+  opening_orphan: "Abertura {id} referencia parede inexistente {wallId}"
+  opening_overflow: "Abertura {id} ultrapassa o comprimento da parede"
+  opening_overlap: "Aberturas {a} e {b} se sobrepõem na mesma parede"
+  wall_pierces_opening: "Parede {wall} termina dentro da abertura {opening} (parede {host})"
+  polygon_self_intersect: "Polígono do cômodo {label} se auto-intersecta"
+  rooms_overlap: "Cômodos {a} e {b} se sobrepõem"
+  no_window: "Dormitório {label} sem janela em parede externa"
+
+errors:
+  no_api_key: "Defina VITE_ANTHROPIC_API_KEY em .env.local"
+  ai_failed: "Falha na requisição de IA: {message}"
+  validation: "Falha na validação da planta"
+
+room_types:
+  bedroom: Dormitório
+  suite: Suíte
+  kitchen: Cozinha
+  living: Sala
+  dining: Copa
+  bathroom: Banheiro
+  laundry: Lavanderia
+  hall: Corredor
+  closet: Closet
+  garage: Garagem
+  office: Escritório
