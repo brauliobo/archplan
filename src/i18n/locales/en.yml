@@ -40,6 +40,7 @@ issues:
   polygon_self_intersect: "Room {label} polygon self-intersects"
   rooms_overlap: "Rooms {a} and {b} overlap"
   no_window: "Bedroom {label} has no exterior window"
+  door_blocks_fixture: "Door {door} swing collides with fixture {fixture}"
 
 errors:
   no_api_key: "Set VITE_ANTHROPIC_API_KEY in .env.local"

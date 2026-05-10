@@ -1,4 +1,5 @@
-import { polyArea, bbox, wallLength } from './util/geom.js'
+import { polyArea, bbox, wallLength, lerp } from './util/geom.js'
+import { FIXTURE_SIZE } from './catalog/fixtures.js'
 
 const MIN_AREA = {
   bedroom: 9, suite: 9, kitchen: 6, living: 10, dining: 6,
@@ -163,6 +164,38 @@ const pointInPolygon = (p, poly) => {
   return inside
 }
 
+const checkDoorFixtureCollision = (level) => {
+  const issues = []
+  const seen = new Set()
+  for (const op of level.openings) {
+    if (op.kind !== 'door' || op.width > 1.2) continue
+    const wall = level.walls.find((w) => w.id === op.wallId)
+    if (!wall) continue
+    const c = lerp(wall.a, wall.b, op.t)
+    const L = wallLength(wall)
+    const ux = (wall.b[0] - wall.a[0]) / L
+    const uy = (wall.b[1] - wall.a[1]) / L
+    const halfW = op.width / 2
+    const hingeA = [c[0] - ux * halfW, c[1] - uy * halfW]
+    const hingeB = [c[0] + ux * halfW, c[1] + uy * halfW]
+    for (const f of level.fixtures || []) {
+      const size = FIXTURE_SIZE[f.kind]
+      if (!size) continue
+      const halfMax = Math.max(size[0], size[1]) / 2
+      const dA = Math.hypot(f.pos[0] - hingeA[0], f.pos[1] - hingeA[1])
+      const dB = Math.hypot(f.pos[0] - hingeB[0], f.pos[1] - hingeB[1])
+      if (Math.min(dA, dB) < op.width + halfMax * 0.7) {
+        const key = op.id + ':' + f.id
+        if (seen.has(key)) continue
+        seen.add(key)
+        issues.push({ code: 'GEOM/door-blocks-fixture', tKey: 'issues.door_blocks_fixture',
+          params: { door: op.id, fixture: f.id }, ref: { level: level.id, opening: op.id } })
+      }
+    }
+  }
+  return issues
+}
+
 const checkBedroomsHaveExteriorWindow = (level) => {
   const xs = level.walls.flatMap((w) => [w.a[0], w.b[0]])
   const ys = level.walls.flatMap((w) => [w.a[1], w.b[1]])
@@ -214,6 +247,7 @@ export const checkHouse = (house) => {
     issues.push(...checkWallEndpointsOnOpenings(level))
     issues.push(...checkSelfIntersect(level))
     issues.push(...checkRoomsOverlap(level))
+    issues.push(...checkDoorFixtureCollision(level))
     issues.push(...checkBedroomsHaveExteriorWindow(level))
   }
   return issues

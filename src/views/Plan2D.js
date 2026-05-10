@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { useHouse } from '../HouseContext.js'
 import { useT } from '../i18n/index.js'
-import { polyCentroid, wallAngle, lerp, bbox, polyArea } from '../util/geom.js'
+import { polyCentroid, wallAngle, lerp, bbox, polyArea, wallLength } from '../util/geom.js'
 import { FIXTURE_SIZE, FIXTURE_COLOR } from '../catalog/fixtures.js'
 import { fillFor } from '../catalog/rooms.js'
 
@@ -27,6 +27,48 @@ function RoomLabel({ room }) {
 function WallLine({ wall }) {
   return pug`
     line(x1=wall.a[0] y1=-wall.a[1] x2=wall.b[0] y2=-wall.b[1] stroke="#1a1a1a" strokeWidth=wall.thickness strokeLinecap="square")
+  `
+}
+
+function WallDimension({ wall, isExterior }) {
+  const len = wallLength(wall)
+  if (len < 0.5) return null
+  const cx = (wall.a[0] + wall.b[0]) / 2
+  const cyM = (wall.a[1] + wall.b[1]) / 2
+  const cy = -cyM
+  const dx = wall.b[0] - wall.a[0]
+  const dyS = -(wall.b[1] - wall.a[1])
+  const ang = Math.atan2(dyS, dx)
+  let deg = ang * 180 / Math.PI
+  if (deg > 90) deg -= 180
+  if (deg < -90) deg += 180
+  const offset = isExterior ? 0.45 : 0.16
+  const nx = -Math.sin(ang) * offset, ny = Math.cos(ang) * offset
+  const ax = wall.a[0], ay = -wall.a[1]
+  const bx = wall.b[0], by = -wall.b[1]
+  const tx = cx + nx, ty = cy + ny
+  const transform = `rotate(${deg.toFixed(2)} ${tx} ${ty})`
+  const txt = len.toFixed(2) + ' m'
+  if (!isExterior) {
+    return pug`
+      g(pointerEvents="none")
+        text(x=tx y=ty fontSize=0.14 textAnchor="middle" dominantBaseline="middle" fill="#666" transform=transform paintOrder="stroke" stroke="#fff" strokeWidth=0.05 strokeLinejoin="round")= txt
+    `
+  }
+  const ex = -Math.sin(ang), ey = Math.cos(ang)
+  const off1 = offset * 0.4, off2 = offset * 0.95
+  const ex1a = ax + ex * off1, ey1a = ay + ey * off1
+  const ex1b = ax + ex * off2, ey1b = ay + ey * off2
+  const ex2a = bx + ex * off1, ey2a = by + ey * off1
+  const ex2b = bx + ex * off2, ey2b = by + ey * off2
+  const dlxa = ax + ex * (offset - 0.05), dlya = ay + ey * (offset - 0.05)
+  const dlxb = bx + ex * (offset - 0.05), dlyb = by + ey * (offset - 0.05)
+  return pug`
+    g(pointerEvents="none")
+      line(x1=ex1a y1=ey1a x2=ex1b y2=ey1b stroke="#888" strokeWidth=0.015)
+      line(x1=ex2a y1=ey2a x2=ex2b y2=ey2b stroke="#888" strokeWidth=0.015)
+      line(x1=dlxa y1=dlya x2=dlxb y2=dlyb stroke="#888" strokeWidth=0.015)
+      text(x=tx y=ty fontSize=0.18 textAnchor="middle" dominantBaseline="middle" fill="#444" transform=transform paintOrder="stroke" stroke="#fff" strokeWidth=0.06 strokeLinejoin="round")= txt
   `
 }
 
@@ -93,12 +135,19 @@ export default function Plan2D() {
   if (!house) return pug`.empty= t('panes.empty')`
 
   const level = house.levels[0]
+  const houseBbox = useMemo(() => bbox(level.walls.flatMap((w) => [w.a, w.b])), [level])
+  const isExterior = (w) => {
+    const onPerim = (p) => Math.abs(p[0] - houseBbox.minX) < 1e-3 || Math.abs(p[0] - houseBbox.maxX) < 1e-3
+                         || Math.abs(p[1] - houseBbox.minY) < 1e-3 || Math.abs(p[1] - houseBbox.maxY) < 1e-3
+    if (!onPerim(w.a) || !onPerim(w.b)) return false
+    if (Math.abs(w.a[0] - w.b[0]) < 1e-3) return Math.abs(w.a[0] - houseBbox.minX) < 1e-3 || Math.abs(w.a[0] - houseBbox.maxX) < 1e-3
+    if (Math.abs(w.a[1] - w.b[1]) < 1e-3) return Math.abs(w.a[1] - houseBbox.minY) < 1e-3 || Math.abs(w.a[1] - houseBbox.maxY) < 1e-3
+    return false
+  }
   const initial = useMemo(() => {
-    const all = level.walls.flatMap((w) => [w.a, w.b])
-    const b = bbox(all)
-    const pad = 1
-    return `${b.minX - pad} ${-b.maxY - pad} ${b.w + pad * 2} ${b.h + pad * 2}`
-  }, [level])
+    const pad = 1.4
+    return `${houseBbox.minX - pad} ${-houseBbox.maxY - pad} ${houseBbox.w + pad * 2} ${houseBbox.h + pad * 2}`
+  }, [houseBbox])
   const [vb, setVb] = useState(initial)
   const dragRef = useRef(null)
 

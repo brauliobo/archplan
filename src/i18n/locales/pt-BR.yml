@@ -40,6 +40,7 @@ issues:
   polygon_self_intersect: "Polígono do cômodo {label} se auto-intersecta"
   rooms_overlap: "Cômodos {a} e {b} se sobrepõem"
   no_window: "Dormitório {label} sem janela em parede externa"
+  door_blocks_fixture: "Porta {door} colide com mobiliário {fixture}"
 
 errors:
   no_api_key: "Defina VITE_ANTHROPIC_API_KEY em .env.local"

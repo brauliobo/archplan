@@ -66,10 +66,10 @@ function Floor({ room }) {
   const shape = useMemo(() => {
     const s = new THREE.Shape()
     const [x0, y0] = room.polygon[0]
-    s.moveTo(x0, -y0)
+    s.moveTo(x0, y0)
     for (let i = 1; i < room.polygon.length; i++) {
       const [x, y] = room.polygon[i]
-      s.lineTo(x, -y)
+      s.lineTo(x, y)
     }
     s.closePath()
     return s
