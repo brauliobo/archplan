@@ -12,9 +12,10 @@ import { TourProvider, useTour } from '../tour/TourContext.js'
 import GuideCharacter from '../tour/GuideCharacter.js'
 import TourController from '../tour/TourController.js'
 import TourUI from '../tour/TourUI.js'
+import { model } from '../util/assets.js'
 
-const MODEL_BASE = `${import.meta.env.BASE_URL}models/furniture/`
-Object.values(FIXTURES).forEach((f) => { if (f.model) useGLTF.preload(MODEL_BASE + f.model) })
+const furnitureUrl = (m) => model(`furniture/${m}`)
+Object.values(FIXTURES).forEach((f) => { if (f.model) useGLTF.preload(furnitureUrl(f.model)) })
 
 const Mat = ({ kind, physical }) =>
   createElement(physical ? 'meshPhysicalMaterial' : 'meshStandardMaterial', { ...MATERIALS[kind], transparent: MATERIALS[kind].opacity != null && MATERIALS[kind].opacity < 1 })
@@ -245,7 +246,7 @@ function FixtureMesh({ fixture, ceilingY }) {
   const rotation = [0, -fixture.rot, 0]
   if (def.model) {
     return pug`
-      FurnitureModel(url=MODEL_BASE + def.model size=def.size position=position rotation=rotation)
+      FurnitureModel(url=furnitureUrl(def.model) size=def.size position=position rotation=rotation)
     `
   }
   return pug`
