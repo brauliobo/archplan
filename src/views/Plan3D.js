@@ -13,7 +13,7 @@ import GuideCharacter from '../tour/GuideCharacter.js'
 import TourController from '../tour/TourController.js'
 import TourUI from '../tour/TourUI.js'
 
-const MODEL_BASE = '/models/furniture/'
+const MODEL_BASE = `${import.meta.env.BASE_URL}models/furniture/`
 Object.values(FIXTURES).forEach((f) => { if (f.model) useGLTF.preload(MODEL_BASE + f.model) })
 
 const Mat = ({ kind, physical }) =>

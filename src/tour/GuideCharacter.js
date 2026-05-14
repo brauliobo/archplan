@@ -4,7 +4,7 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 import * as THREE from 'three'
 import { useTour } from './TourContext.js'
 
-const URL = '/models/characters/Soldier.glb'
+const URL = `${import.meta.env.BASE_URL}models/characters/Soldier.glb`
 const TARGET_HEIGHT = 1.78
 const HEAD_BONE_NAMES = ['mixamorig:Head', 'mixamorigHead', 'Head']
 const WALK_THRESHOLD = 0.05
